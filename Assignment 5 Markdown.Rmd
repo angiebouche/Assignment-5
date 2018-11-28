@@ -15,6 +15,7 @@ Load Tidyverse Etc
 library(tidyverse)
 library(RColorBrewer)
 library(kableExtra)
+library(car)
 read.csv("Doctoral_Salaries.csv")
 read.csv("Faculty_Salaries.csv")
 enrollment <- read.csv("Grad_enrollment.csv")
@@ -92,5 +93,137 @@ enrollment_graph <- ggplot(enrollment, aes(x=Year, y =Total_Males))+
 enrollment_graph
   
 
+```
+
+
+
+
+
+
+#Part 4 - Multivariate linear regression
+
+Exploring academic salaries for professors in U.S. colleges. Explore relationships between
+variables in the ‘Faculty salary data (2008 - 2009 survey)’ dataset. Develop a model describing faculty salary based on data for faculty sex, rank, years in current position, field, and number of years since doctoral degree was earned. You should make decisions regarding which variables should remain in your final model. Describe the results qualitatively and quantitatively (i.e., don’t just report the statistical results of the model – make sure you describe interesting findings in text). You can also discuss any
+concerns that you have with the model(s) you present, if any.
+
+Dependent variable (y): faculty salary
+Possible predictor variables: faculty sex, rank, years in current position, field, and number of years since doctoral degree was earned
+
+Steps:
+1) Explore data - find means of salary, make density plot of salary by diff predictor variables
+2) Make initial model 
+3) Test for colinearity
+4) Refine model
+3) Run diagnostic plots (to test Linearity, Independence, Homoscedasticity (residuals variance), Normality)
+5) AIC to compare different models
+
+
+##Make new dataframe 
+```{r}
+faculty_salary <- read_csv("Faculty_Salaries.csv")
+
+#Reorder columns
+faculty_salary <- faculty_salary[c("Salary", "Discipline", "Sex", "Faculty_Rank", "Years_Since_PhD", "Years_Faculty_Service")]
+  
+```
+
+##Explore data
+```{r}
+#Salary means by Sex
+sex_mean <- faculty_salary %>% 
+  group_by(Sex) %>% 
+  summarize(
+    mean = mean(Salary)
+  )
+
+#Salary means by Discipline
+discipline_mean <- faculty_salary %>% 
+  group_by(Discipline) %>% 
+  summarize(
+    mean = mean(Salary)
+  )
+
+#Relationship between salary and faculty years of service
+salary_service <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary)) +
+  geom_point(aes(color = Sex, pch = Discipline))+
+facet_wrap(~Discipline)
+
+salary_service
+
+#Relationship between salary and faculty rank, by sex and discipline
+salary_yrs <- ggplot(faculty_salary, aes(x = Faculty_Rank, y = Salary)) +
+  geom_point(aes(color = Sex, pch = Discipline), alpha = 0.5) +
+  facet_wrap(~Discipline)
+
+salary_yrs
+
+```
+
+##Linear regression model - Saturated
+```{r}
+salary_lm1 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Since_PhD + Years_Faculty_Service, data = faculty_salary)
+summary(salary_lm1)
+
+```
+
+Salary = 78862.8 + 14417.6(Discipline B) + 4783.5(Sex Male) - 12907.6(AsstProf) + 32158.4(Prof) + 535.1(Years_Since_PhD) - 489.5 (Years_Faculty_Service)
+
+Reference levels: Discipline A (0), Female (0), AssocProf (0)
+
+But... this says that as you increase years of service, your salary decreases -> Might indicate collinearity
+
+##Test for collinearity
+```{r}
+salary_simple <- faculty_salary %>% 
+  select(Salary, Years_Since_PhD, Years_Faculty_Service)
+
+cor(salary_simple) #High correlation bw Years_Since_PhD and Years_Faculty_Service
+
+#VIF
+vif(salary_lm1)
+
+```
+High correlation bw Years_Since_PhD and Years_Faculty_Service: 0.91
+
+VIF
+Years_Since_PhD: 7.51
+Years_Faculty_Service: 5.92
+
+So maybe should remove Years_Since_PhD - this makes sense conceptually, since years since phd is very similar to years of faculty service
+
+##Linear regression model - subset
+```{r}
+salary_lm2 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Faculty_Service, data = faculty_salary)
+summary(salary_lm2)
+
+#VIF
+vif(salary_lm2)
+
+#Maybe... 
+salary_lm3 <- lm(Salary ~ Discipline + Sex + Faculty_Rank, data = faculty_salary)
+summary(salary_lm3)
+```
+
+Salary = 82912.1 + 13473.4(Discipline B) +  4771.3(Sex Male) - 14560.4(AsstProf) + 34599.2(Prof) - 88.8 (Years_Faculty_Service)
+
+##Diagnostic plots
+```{r}
+plot(salary_lm2)
+```
+Residuals: homoscedastic
+Normality: yes??
+
+##Akaike Information Criterion
+```{r}
+sat_aic <- AIC(salary_lm1)
+sat_aic #9093.8
+
+final_aic <- AIC(salary_lm2)
+final_aic #9096.8
+
+
+aic <- AIC(salary_lm3)
+aic
+#AIC for the first model is slightly lower, but not lower enough to warrant the added level of complexity
 ```
 
