@@ -17,7 +17,7 @@ library(RColorBrewer)
 library(kableExtra)
 read.csv("Doctoral_Salaries.csv")
 read.csv("Faculty_Salaries.csv")
-read.csv("Grad_enrollment.csv")
+enrollment <- read.csv("Grad_enrollment.csv")
 read.csv("phd.csv")
 
 ```
@@ -25,9 +25,72 @@ read.csv("phd.csv")
 #Part 1
 ####Exploratory Scatterplot for Males and Females
 ```{r}
+enrollment_line <- ggplot(enrollment, aes(x=Year))+
+  geom_line(aes(y=Total_Males, colour = "Male Enrollment"))+
+  geom_line(aes(y=Total_Females, colour = "Female Enrollment"))
+   #Scatterplot of female enrollment
 
+enrollment_line
 
 
 ```
 
+####Linear Regression for Male and Female Enrollment
+```{r}
+
+menroll_model <- lm(Total_Males ~ Year, data = enrollment)
+menroll_model
+#results in equation y = - 17112153 + 9069x
+
+fenroll_model <- lm(Total_Females ~ Year, data = enrollment)
+fenroll_model
+#results in equation y = - 58955502 + 30126x
+
+```
+
+#####Model Diagnostics, Fit and Significance
+```{r}
+plot(menroll_model)
+par(mfrow = c(2,2))
+plot(menroll_model)
+
+#Q-Q plot appears normally distributed, but there seems to be peaks that don't match up with the red line on Residuals vs. Fitted graph.
+
+summary(menroll_model)
+
+#Multiple R-squared:  0.8545,	Adjusted R-squared:  0.8514 
+#F-statistic:   276 on 1 and 47 DF,  p-value: < 2.2e-16
+#Standard error  1087024 and 546
+
+plot(fenroll_model)
+par(mfrow = c(2,2))
+plot(fenroll_model)
+
+#Q-Q plot appears normally distributed, but there seems to be peaks that don't match up with the red line on Residuals vs. Fitted graph.
+
+summary(fenroll_model)
+#Multiple R-squared:  0.9827,	Adjusted R-squared:  0.9823 
+#F-statistic:  2669 on 1 and 47 DF,  p-value: < 2.2e-16
+#Standard error 1161000 and 583.2
+
+```
+
+
+
+#####Finalized Graph for Male and Female Enrollment
+```{r}
+enrollment_graph <- ggplot(enrollment, aes(x=Year, y =Total_Males))+
+  geom_point(aes(y=Total_Males, color="green"))+ #add cl smooth
+  geom_point(aes(y = Total_Females, color="red"))+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "blue",(aes(y=Total_Males)))+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "red",(aes(y=Total_Females)))+
+  scale_colour_manual("", breaks = c("Total_Males", "Total_Females"), values = c("blue", "red")) +
+  theme_classic()+
+  scale_x_continuous(expand= c(0,0), limits= c(1967,2016))+
+  labs(x= "Year", y = "Number of Students Enrolled")
+
+enrollment_graph
+  
+
+```
 
