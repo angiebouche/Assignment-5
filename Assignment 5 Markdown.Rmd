@@ -1,0 +1,33 @@
+---
+title: "Assignment 5"
+author: "Angie Bouche"
+date: "November 27, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Load Tidyverse Etc
+```{r}
+library(tidyverse)
+library(RColorBrewer)
+library(kableExtra)
+read.csv("Doctoral_Salaries.csv")
+read.csv("Faculty_Salaries.csv")
+read.csv("Grad_enrollment.csv")
+read.csv("phd.csv")
+
+```
+
+#Part 1
+####Exploratory Scatterplot for Males and Females
+```{r}
+
+
+
+```
+
+
