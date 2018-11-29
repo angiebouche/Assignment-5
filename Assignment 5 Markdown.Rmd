@@ -16,6 +16,8 @@ library(tidyverse)
 library(RColorBrewer)
 library(kableExtra)
 library(car)
+library(reshape2)
+
 read.csv("Doctoral_Salaries.csv")
 read.csv("Faculty_Salaries.csv")
 enrollment <- read.csv("Grad_enrollment.csv")
@@ -96,8 +98,37 @@ enrollment_graph
 ```
 
 
+#Part 3 - Male and female salaries for starting postdoctoral and other employment positions (2015)
+Compare median salaries for male and female doctorate recipients in 2015. Answer these two questions:
+
+Does median salary differ significantly between male and female starting postdoc positions? Does median salary differ significantly between male and female PhD recipients in non-postdoc employment positions?
+
+Wilcoxon signed-rank - two sample paired
+
+```{r}
+doctoral <- read_csv("Doctoral_Salaries.csv")
+```
+
+##Data visualization - boxplots
+```{r}
+doctoral_melt <- melt(doctoral[c('Field', 'Employment_Male', 'Employment_Female', 'Postdoc_Male', 'Postdoc_Female')],id.vars = 1)
 
 
+employment_box <- ggplot(doctoral_melt, aes(x = variable, y = value, fill = variable))+
+  geom_boxplot()
+employment_box
+
+```
+
+
+##Wilcox rank test 
+```{r}
+employment_wilcox <- wilcox.test(doctoral$Employment_Male, doctoral$Employment_Female, paired = TRUE)
+employment_wilcox #V = 101, p-value = 0.002572
+
+postdoc_wilcox <- wilcox.test(doctoral$Postdoc_Male, doctoral$Postdoc_Female, paired = TRUE)
+postdoc_wilcox #V = 19.5, p-value = 0.8884
+```
 
 
 #Part 4 - Multivariate linear regression
@@ -255,7 +286,7 @@ Sex*Years_Since_PhD insignificant
 Discipline*Years_Since_PhD insignificant
 
 Model lm5 (Model with interaction term):
-Salary = 86338.5 + 6255.7(Discipline B) + 5196.1(Sex Male) - 13899.7(AsstProf) + 34121.8(Prof) - 266.8(ears_Faculty_Service) + 406.3(DisciplineB*Years_Faculty_Service)
+Salary = 86338.5 + 6255.7(Discipline B) + 5196.1(Sex Male) - 13899.7(AsstProf) + 34121.8(Prof) - 266.8(Years_Faculty_Service) + 406.3(DisciplineB*Years_Faculty_Service)
 
 ##Diagnostic plots
 ```{r}
