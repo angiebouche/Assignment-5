@@ -80,7 +80,7 @@ summary(fenroll_model)
 
 #####Finalized Graph for Male and Female Enrollment
 ```{r}
-enrollment_graph <- ggplot(enrollment, aes(x=Year, y =Total_Males))+
+enrollment_graph <- ggplot(enrollment, aes(x=Year))+
   geom_point(aes(y=Total_Males, color="green"))+ #add cl smooth
   geom_point(aes(y = Total_Females, color="red"))+
   geom_smooth(method = lm, se = TRUE, size = 0.5, color = "blue",(aes(y=Total_Males)))+
@@ -116,7 +116,6 @@ Steps:
 4) Refine model
 3) Run diagnostic plots (to test Linearity, Independence, Homoscedasticity (residuals variance), Normality)
 5) AIC to compare different models
-
 
 ##Make new dataframe 
 ```{r}
@@ -159,7 +158,7 @@ salary_yrs
 
 ```
 
-##Linear regression model - Saturated
+##Linear regression model - Saturated (all variables)
 ```{r}
 salary_lm1 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Since_PhD + Years_Faculty_Service, data = faculty_salary)
 summary(salary_lm1)
@@ -191,26 +190,81 @@ Years_Faculty_Service: 5.92
 
 So maybe should remove Years_Since_PhD - this makes sense conceptually, since years since phd is very similar to years of faculty service
 
-##Linear regression model - subset
+##Linear regression model - subsets
 ```{r}
+#Model without Years_Since_PhD 
 salary_lm2 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Faculty_Service, data = faculty_salary)
 summary(salary_lm2)
 
-#VIF
 vif(salary_lm2)
 
-#Maybe... 
-salary_lm3 <- lm(Salary ~ Discipline + Sex + Faculty_Rank, data = faculty_salary)
+#Model without Years_Faculty_Service 
+salary_lm3 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Since_PhD, data = faculty_salary)
 summary(salary_lm3)
+
+vif(salary_lm3)
+
+#Model without Years_Since_PhD and Years_Faculty_Service
+salary_lm4 <- lm(Salary ~ Discipline + Sex + Faculty_Rank, data = faculty_salary)
+summary(salary_lm4)
+
+vif(salary_lm4)
+
 ```
 
+Model lm2 (Model without Years_Since_PhD):
 Salary = 82912.1 + 13473.4(Discipline B) +  4771.3(Sex Male) - 14560.4(AsstProf) + 34599.2(Prof) - 88.8 (Years_Faculty_Service)
+
+Model lm3 (Model without Years_Faculty_Service):
+Salary = 80988.5 + 13937.5(Discipline B) +  4349.4(Sex Male) - 13104.2(AsstProf) + 32928.4(Prof) + 61.0 (Years_Since_PhD)
+
+Model lm4:
+Salary = 81947 + 13709(Discipline B) +  4492(Sex Male) - 13723(AsstProf) + 33680(Prof) 
+
+##Interaction terms?
+```{r}
+salary_lm5 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Faculty_Service + Discipline*Years_Faculty_Service, data = faculty_salary)
+
+summary(salary_lm5)
+vif(salary_lm5)
+
+#Relationship between salary and Years_Faculty_Service, by discipline
+service_model <- lm(Salary ~ Years_Faculty_Service + Discipline, data = faculty_salary)
+
+service_graph1 <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary))+
+geom_point(aes(color = Discipline))+
+  facet_wrap(~Discipline)+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph1
+
+service_graph2 <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary))+
+geom_point()+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph2
+
+service_graph3 <- ggplot(faculty_salary, aes(x = Years_Since_PhD, y = Salary))+
+geom_point()+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph3
+```
+
+Sex*Years_Faculty_Service insignificant
+Discipline*Years_Faculty_Service significant
+
+Sex*Years_Since_PhD insignificant
+Discipline*Years_Since_PhD insignificant
+
+Model lm5 (Model with interaction term):
+Salary = 86338.5 + 6255.7(Discipline B) + 5196.1(Sex Male) - 13899.7(AsstProf) + 34121.8(Prof) - 266.8(ears_Faculty_Service) + 406.3(DisciplineB*Years_Faculty_Service)
 
 ##Diagnostic plots
 ```{r}
 plot(salary_lm2)
+plot(salary_lm3)
+plot(salary_lm4)
+plot(salary_lm5)
 ```
-Residuals: homoscedastic
+Residuals: homoscedastic??
 Normality: yes??
 
 ##Akaike Information Criterion
@@ -218,12 +272,33 @@ Normality: yes??
 sat_aic <- AIC(salary_lm1)
 sat_aic #9093.8
 
-final_aic <- AIC(salary_lm2)
-final_aic #9096.8
+lm2_aic <- AIC(salary_lm2)
+lm2_aic #9096.8
 
+lm3_aic <- AIC(salary_lm3)
+lm3_aic #9097.2
 
-aic <- AIC(salary_lm3)
-aic
-#AIC for the first model is slightly lower, but not lower enough to warrant the added level of complexity
+lm4_aic <- AIC(salary_lm4)
+lm4_aic #9095.5
+
+lm5_aic <- AIC(salary_lm5)
+lm5_aic #9093.6
+
+#lm4 < lm3 < lm2
 ```
 
+
+Questions to ask: 
+1) Which variable to include - PhD years increases, service years decreases. PhD has a higher correlation so based on that would we exclude? But if you look at graph the linear regression is better for years since PhD
+
+2) Correlation terms - one is 0.7 one is 0.5, what does this actually mean and why does the correlation term change depending on which model you choose 
+
+3) Correlation vs interaction term????
+
+4) Interaction terms 
+  -Which model to test them with 
+  -Look for significance and low vif?
+  -Graph why inc for A and inc for B leads to decrease for coefficient? Does the interaction   term cancel this out?
+  
+5) Non-normality and heteroscedacity 
+  
