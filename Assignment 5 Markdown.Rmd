@@ -17,6 +17,7 @@ library(RColorBrewer)
 library(kableExtra)
 library(car)
 library(reshape2)
+library(stargazer)
 
 read.csv("Doctoral_Salaries.csv")
 read.csv("Faculty_Salaries.csv")
@@ -219,7 +220,7 @@ VIF
 Years_Since_PhD: 7.51
 Years_Faculty_Service: 5.92
 
-So maybe should remove Years_Since_PhD - this makes sense conceptually, since years since phd is very similar to years of faculty service
+So we should remove Years_Since_PhD or Years_Faculty_Service - which makes sense conceptually
 
 ##Linear regression model - subsets
 ```{r}
@@ -252,9 +253,9 @@ Salary = 80988.5 + 13937.5(Discipline B) +  4349.4(Sex Male) - 13104.2(AsstProf)
 Model lm4:
 Salary = 81947 + 13709(Discipline B) +  4492(Sex Male) - 13723(AsstProf) + 33680(Prof) 
 
-##Interaction terms?
+##Interaction terms? 
 ```{r}
-salary_lm5 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Faculty_Service + Discipline*Years_Faculty_Service, data = faculty_salary)
+salary_lm5 <- lm(Salary ~ Sex + Faculty_Rank + Discipline + Years_Faculty_Service + Discipline*Years_Faculty_Service, data = faculty_salary)
 
 summary(salary_lm5)
 vif(salary_lm5)
@@ -278,15 +279,6 @@ geom_point()+
   geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
 service_graph3
 ```
-
-Sex*Years_Faculty_Service insignificant
-Discipline*Years_Faculty_Service significant
-
-Sex*Years_Since_PhD insignificant
-Discipline*Years_Since_PhD insignificant
-
-Model lm5 (Model with interaction term):
-Salary = 86338.5 + 6255.7(Discipline B) + 5196.1(Sex Male) - 13899.7(AsstProf) + 34121.8(Prof) - 266.8(Years_Faculty_Service) + 406.3(DisciplineB*Years_Faculty_Service)
 
 ##Diagnostic plots
 ```{r}
@@ -317,19 +309,17 @@ lm5_aic #9093.6
 
 #lm4 < lm3 < lm2
 ```
+None of the interactions significantly change the AIC value of the model. 
+SO: The best model is lm3
+
+Model lm3 (Model without Years_Faculty_Service):
+Salary = 80988.5 + 13937.5(Discipline B) +  4349.4(Sex Male) - 13104.2(AsstProf) + 32928.4(Prof) + 61.0 (Years_Since_PhD)
+
+##Model data table
+```{r}
+
+lm_table <- stargazer(salary_lm3, type = "html")
+
+```
 
 
-Questions to ask: 
-1) Which variable to include - PhD years increases, service years decreases. PhD has a higher correlation so based on that would we exclude? But if you look at graph the linear regression is better for years since PhD
-
-2) Correlation terms - one is 0.7 one is 0.5, what does this actually mean and why does the correlation term change depending on which model you choose 
-
-3) Correlation vs interaction term????
-
-4) Interaction terms 
-  -Which model to test them with 
-  -Look for significance and low vif?
-  -Graph why inc for A and inc for B leads to decrease for coefficient? Does the interaction   term cancel this out?
-  
-5) Non-normality and heteroscedacity 
-  
