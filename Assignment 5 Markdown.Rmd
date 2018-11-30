@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5"
-author: "Angie Bouche"
+author: "Angie Bouche, Tara Jagadeesh, Andrea Cheung"
 date: "November 27, 2018"
 output: html_document
 ---
@@ -97,6 +97,45 @@ enrollment_graph
   
 
 ```
+
+
+## Part 2 
+```{r}
+#read csv file
+phd <- read_csv("phd.csv") 
+ac_phd <- phd %>% 
+  filter(sex == "female") %>% 
+  filter(year != "1990") %>% 
+  filter(year != "1995") %>%
+  filter(year != "2005") %>% 
+  filter(year != "2015") %>%
+  filter(field != "all") %>%
+  filter(field != "lifesci") %>%
+  filter(field != "mathcomp") %>%
+  filter(field != "other") %>%
+  filter(field != "psychsoc") %>% 
+  select("field", "sex", "year", "number", "percent")
+
+phd_prop <- ac_phd %>% 
+  select("field", "year", "number") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Part 3 - Male and female salaries for starting postdoctoral and other employment positions (2015)
