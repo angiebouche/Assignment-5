@@ -108,7 +108,7 @@ ac_phd <- phd %>%
   filter(year != "1990") %>% 
   filter(year != "1995") %>%
   filter(year != "2005") %>% 
-  filter(year != "2015") %>%
+  filter(year != "2010") %>%
   filter(field != "all") %>%
   filter(field != "lifesci") %>%
   filter(field != "mathcomp") %>%
@@ -118,6 +118,18 @@ ac_phd <- phd %>%
 
 phd_prop <- ac_phd %>% 
   select("field", "year", "number") 
+
+phd_dcast <- dcast(phd_prop, year~field) %>% 
+  select(-year)
+
+rownames(phd_dcast) <- c("1985", "2000", "2015")
+
+phd_proptable <- prop.table(as.matrix(phd_dcast),1)
+
+female_phd_x2 <- chisq.test(phd_dcast)
+female_phd_x2
+
+
 ```
 
 
