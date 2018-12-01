@@ -2,7 +2,10 @@
 title: "Assignment 5"
 author: "Angie Bouche, Tara Jagadeesh, Andrea Cheung"
 date: "November 27, 2018"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -92,10 +95,22 @@ enrollment_graph <- ggplot(enrollment, aes(x=Year))+
   geom_smooth(method = lm, se = TRUE, size = 0.5, color = "midnightblue",(aes(y=Total_Males/1000000)))+
   geom_smooth(method = lm, se = TRUE, size = 0.5, color = "orange1",(aes(y=Total_Females/1000000)))+
   theme_classic()+
-  scale_x_continuous(expand= c(0,0), limits= c(1967,2016))+
+  scale_x_continuous(expand= c(0,0), limits= c(1966,2016))+
   labs(x= "Year", y = "Number of Students Enrolled (In Millions)", color = "Gender")
 
 enrollment_graph + scale_color_manual(values=c("orange1", "midnightblue"))
+
+
+#Pearsons R
+
+male_pearson <- cor.test(enrollment$Year, enrollment$Total_Males)
+
+male_pearson
+
+female_pearson <- cor.test(enrollment$Year, enrollment$Total_Females)
+
+female_pearson
+
   
 
 ```
