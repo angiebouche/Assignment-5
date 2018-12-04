@@ -162,7 +162,7 @@ pie1985 <- ggplot(dfpie1985, aes(x="", y=value, fill=group)) + geom_bar(stat="id
 
 pie1985 = pie1985 + coord_polar("y", start=0) + geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5))
 
-pie1985 = pie1985 + scale_fill_manual(values=c("#a3d9db", "#33658A", "#2F4858", "#e78f21", "#999999"))
+pie1985 = pie1985 + scale_fill_manual(values=c("#a3d9db", "#508EBD", "#66a967", "#e78f21", "#999999"))
 
 pie1985 = pie1985 + theme_classic() +  theme(legend.title=element_blank())+ labs(title = "1985", align=c)+ theme(axis.line = element_blank(),
           axis.text = element_blank(),
@@ -193,7 +193,7 @@ pie2000 <- ggplot(dfpie2000, aes(x="", y=value, fill=group)) + geom_bar(stat="id
 
 pie2000 = pie2000 + coord_polar("y", start=0) + geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5))
 
-pie2000 = pie2000 + scale_fill_manual(values=c("#a3d9db", "#33658A", "#2F4858", "#e78f21", "#999999"))
+pie2000 = pie2000 + scale_fill_manual(values=c("#a3d9db", "#508EBD", "#66a967", "#e78f21", "#999999"))
 
 pie2000 = pie2000 + theme_classic() +  theme(legend.title=element_blank())+ labs(title = "2000", align=c)+ theme(axis.line = element_blank(),
           axis.text = element_blank(),
@@ -218,7 +218,7 @@ pie2015 <- ggplot(dfpie2015, aes(x="", y=value, fill=group)) + geom_bar(stat="id
 
 pie2015 = pie2015 + coord_polar("y", start=0) + geom_text(aes(label = paste0(round(value*100), "%")), position = position_stack(vjust = 0.5))
 
-pie2015 = pie2015 + scale_fill_manual(values=c("#a3d9db", "#33658A", "#2F4858", "#e78f21", "#999999"))
+pie2015 = pie2015 + scale_fill_manual(values=c("#a3d9db", "#508EBD", "#66a967", "#e78f21", "#999999"))
 
 pie2015 = pie2015 + theme_classic() +  theme(legend.title=element_blank())+ labs(title = "2015", align=c)+ theme(axis.line = element_blank(),
           axis.text = element_blank(),
