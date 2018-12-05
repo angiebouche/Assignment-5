@@ -151,18 +151,18 @@ Load Tidyverse Etc
 \end{Shaded}
 
 \begin{verbatim}
-## -- Attaching packages ------------------------------------------------------------ tidyverse 1.2.1 --
+## -- Attaching packages --------------------------------------- tidyverse 1.2.1 --
 \end{verbatim}
 
 \begin{verbatim}
-## v ggplot2 3.0.0     v purrr   0.2.5
+## v ggplot2 3.1.0     v purrr   0.2.5
 ## v tibble  1.4.2     v dplyr   0.7.6
 ## v tidyr   0.8.1     v stringr 1.3.1
 ## v readr   1.1.1     v forcats 0.3.0
 \end{verbatim}
 
 \begin{verbatim}
-## -- Conflicts --------------------------------------------------------------- tidyverse_conflicts() --
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()
 \end{verbatim}
@@ -1415,7 +1415,7 @@ Enrollment}\label{finalized-graph-for-male-and-female-enrollment}
 \StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =}\NormalTok{ lm, }\DataTypeTok{se =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{size =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{color =} \StringTok{"midnightblue"}\NormalTok{,(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y=}\NormalTok{Total_Males}\OperatorTok{/}\DecValTok{1000000}\NormalTok{)))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =}\NormalTok{ lm, }\DataTypeTok{se =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{size =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{color =} \StringTok{"orange1"}\NormalTok{,(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y=}\NormalTok{Total_Females}\OperatorTok{/}\DecValTok{1000000}\NormalTok{)))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{theme_classic}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{expand=} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{), }\DataTypeTok{limits=} \KeywordTok{c}\NormalTok{(}\DecValTok{1967}\NormalTok{,}\DecValTok{2016}\NormalTok{))}\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{expand=} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{), }\DataTypeTok{limits=} \KeywordTok{c}\NormalTok{(}\DecValTok{1966}\NormalTok{,}\DecValTok{2016}\NormalTok{))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x=} \StringTok{"Year"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Number of Students Enrolled (In Millions)"}\NormalTok{, }\DataTypeTok{color =} \StringTok{"Gender"}\NormalTok{)}
 
 \NormalTok{enrollment_graph }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"orange1"}\NormalTok{, }\StringTok{"midnightblue"}\NormalTok{))}
@@ -1423,6 +1423,52 @@ Enrollment}\label{finalized-graph-for-male-and-female-enrollment}
 \end{Shaded}
 
 \includegraphics{Assignment_5_Markdown_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Pearsons R}
+
+\NormalTok{male_pearson <-}\StringTok{ }\KeywordTok{cor.test}\NormalTok{(enrollment}\OperatorTok{$}\NormalTok{Year, enrollment}\OperatorTok{$}\NormalTok{Total_Males)}
+
+\NormalTok{male_pearson}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Pearson's product-moment correlation
+## 
+## data:  enrollment$Year and enrollment$Total_Males
+## t = 16.612, df = 47, p-value < 2.2e-16
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.8690777 0.9568547
+## sample estimates:
+##       cor 
+## 0.9243741
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{female_pearson <-}\StringTok{ }\KeywordTok{cor.test}\NormalTok{(enrollment}\OperatorTok{$}\NormalTok{Year, enrollment}\OperatorTok{$}\NormalTok{Total_Females)}
+
+\NormalTok{female_pearson}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Pearson's product-moment correlation
+## 
+## data:  enrollment$Year and enrollment$Total_Females
+## t = 51.659, df = 47, p-value < 2.2e-16
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.9845609 0.9951144
+## sample estimates:
+##       cor 
+## 0.9913086
+\end{verbatim}
 
 \subsection{Part 2}\label{part-2}
 
@@ -1505,7 +1551,7 @@ Pie chart for 1985
 
 \NormalTok{pie1985 =}\StringTok{ }\NormalTok{pie1985 }\OperatorTok{+}\StringTok{ }\KeywordTok{coord_polar}\NormalTok{(}\StringTok{"y"}\NormalTok{, }\DataTypeTok{start=}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =} \KeywordTok{paste0}\NormalTok{(}\KeywordTok{round}\NormalTok{(value}\OperatorTok{*}\DecValTok{100}\NormalTok{), }\StringTok{"%"}\NormalTok{)), }\DataTypeTok{position =} \KeywordTok{position_stack}\NormalTok{(}\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{))}
 
-\NormalTok{pie1985 =}\StringTok{ }\NormalTok{pie1985 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#33658A"}\NormalTok{, }\StringTok{"#2F4858"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
+\NormalTok{pie1985 =}\StringTok{ }\NormalTok{pie1985 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#508EBD"}\NormalTok{, }\StringTok{"#66a967"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
 
 \NormalTok{pie1985 =}\StringTok{ }\NormalTok{pie1985 }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{() }\OperatorTok{+}\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.title=}\KeywordTok{element_blank}\NormalTok{())}\OperatorTok{+}\StringTok{ }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"1985"}\NormalTok{, }\DataTypeTok{align=}\NormalTok{c)}\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.line =} \KeywordTok{element_blank}\NormalTok{(),}
           \DataTypeTok{axis.text =} \KeywordTok{element_blank}\NormalTok{(),}
@@ -1532,7 +1578,7 @@ Pie chart for 2000
 
 \NormalTok{pie2000 =}\StringTok{ }\NormalTok{pie2000 }\OperatorTok{+}\StringTok{ }\KeywordTok{coord_polar}\NormalTok{(}\StringTok{"y"}\NormalTok{, }\DataTypeTok{start=}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =} \KeywordTok{paste0}\NormalTok{(}\KeywordTok{round}\NormalTok{(value}\OperatorTok{*}\DecValTok{100}\NormalTok{), }\StringTok{"%"}\NormalTok{)), }\DataTypeTok{position =} \KeywordTok{position_stack}\NormalTok{(}\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{))}
 
-\NormalTok{pie2000 =}\StringTok{ }\NormalTok{pie2000 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#33658A"}\NormalTok{, }\StringTok{"#2F4858"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
+\NormalTok{pie2000 =}\StringTok{ }\NormalTok{pie2000 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#508EBD"}\NormalTok{, }\StringTok{"#66a967"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
 
 \NormalTok{pie2000 =}\StringTok{ }\NormalTok{pie2000 }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{() }\OperatorTok{+}\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.title=}\KeywordTok{element_blank}\NormalTok{())}\OperatorTok{+}\StringTok{ }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"2000"}\NormalTok{, }\DataTypeTok{align=}\NormalTok{c)}\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.line =} \KeywordTok{element_blank}\NormalTok{(),}
           \DataTypeTok{axis.text =} \KeywordTok{element_blank}\NormalTok{(),}
@@ -1559,7 +1605,7 @@ Pie Chart for 2010
 
 \NormalTok{pie2015 =}\StringTok{ }\NormalTok{pie2015 }\OperatorTok{+}\StringTok{ }\KeywordTok{coord_polar}\NormalTok{(}\StringTok{"y"}\NormalTok{, }\DataTypeTok{start=}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =} \KeywordTok{paste0}\NormalTok{(}\KeywordTok{round}\NormalTok{(value}\OperatorTok{*}\DecValTok{100}\NormalTok{), }\StringTok{"%"}\NormalTok{)), }\DataTypeTok{position =} \KeywordTok{position_stack}\NormalTok{(}\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{))}
 
-\NormalTok{pie2015 =}\StringTok{ }\NormalTok{pie2015 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#33658A"}\NormalTok{, }\StringTok{"#2F4858"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
+\NormalTok{pie2015 =}\StringTok{ }\NormalTok{pie2015 }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_fill_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"#a3d9db"}\NormalTok{, }\StringTok{"#508EBD"}\NormalTok{, }\StringTok{"#66a967"}\NormalTok{, }\StringTok{"#e78f21"}\NormalTok{, }\StringTok{"#999999"}\NormalTok{))}
 
 \NormalTok{pie2015 =}\StringTok{ }\NormalTok{pie2015 }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{() }\OperatorTok{+}\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.title=}\KeywordTok{element_blank}\NormalTok{())}\OperatorTok{+}\StringTok{ }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"2015"}\NormalTok{, }\DataTypeTok{align=}\NormalTok{c)}\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.line =} \KeywordTok{element_blank}\NormalTok{(),}
           \DataTypeTok{axis.text =} \KeywordTok{element_blank}\NormalTok{(),}

@@ -3,9 +3,9 @@ title: "Assignment 5"
 author: "Angie Bouche, Tara Jagadeesh, Andrea Cheung"
 date: "November 27, 2018"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -460,7 +460,7 @@ Model lm3 (Model without Years_Faculty_Service):
 Salary = 80988.5 + 13937.5(Discipline B) +  4349.4(Sex Male) - 13104.2(AsstProf) + 32928.4(Prof) + 61.0 (Years_Since_PhD)
 
 ##Model data table
-```{r}
+```{r stargazer, results ='asis'}
 
 lm_table <- stargazer(salary_lm3, type = "html")
 
