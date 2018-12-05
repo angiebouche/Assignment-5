@@ -1,0 +1,419 @@
+---
+title: "Assignment 5"
+author: "Angie Bouche, Tara Jagadeesh, Andrea Cheung"
+date: "November 27, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Load Tidyverse Etc
+```{r}
+library(tidyverse)
+library(RColorBrewer)
+library(kableExtra)
+library(car)
+library(reshape2)
+library(stargazer)
+
+read.csv("Doctoral_Salaries.csv")
+read.csv("Faculty_Salaries.csv")
+enrollment <- read.csv("Grad_enrollment.csv")
+read.csv("phd.csv")
+
+```
+
+#Part 1
+####Exploratory Scatterplot for Males and Females
+```{r}
+enrollment_line <- ggplot(enrollment, aes(x=Year))+
+  geom_line(aes(y=Total_Males, colour = "Male Enrollment"))+
+  geom_line(aes(y=Total_Females, colour = "Female Enrollment"))
+   #Scatterplot of female enrollment
+
+enrollment_line
+
+
+```
+
+####Linear Regression for Male and Female Enrollment
+```{r}
+
+menroll_model <- lm(Total_Males ~ Year, data = enrollment)
+menroll_model
+#results in equation y = - 17112153 + 9069x
+
+fenroll_model <- lm(Total_Females ~ Year, data = enrollment)
+fenroll_model
+#results in equation y = - 58955502 + 30126x
+
+```
+
+#####Model Diagnostics, Fit and Significance
+```{r}
+plot(menroll_model)
+par(mfrow = c(2,2))
+plot(menroll_model)
+
+#Q-Q plot appears normally distributed, but there seems to be peaks that don't match up with the red line on Residuals vs. Fitted graph.
+
+summary(menroll_model)
+
+#Multiple R-squared:  0.8545,	Adjusted R-squared:  0.8514 
+#F-statistic:   276 on 1 and 47 DF,  p-value: < 2.2e-16
+#Standard error  1087024 and 546
+
+plot(fenroll_model)
+par(mfrow = c(2,2))
+plot(fenroll_model)
+
+#Q-Q plot appears normally distributed, but there seems to be peaks that don't match up with the red line on Residuals vs. Fitted graph.
+
+summary(fenroll_model)
+#Multiple R-squared:  0.9827,	Adjusted R-squared:  0.9823 
+#F-statistic:  2669 on 1 and 47 DF,  p-value: < 2.2e-16
+#Standard error 1161000 and 583.2
+
+```
+
+
+
+#####Finalized Graph for Male and Female Enrollment
+```{r}
+enrollment_graph <- ggplot(enrollment, aes(x=Year))+
+  geom_point(aes(y=Total_Males, color="green"))+ #add cl smooth
+  geom_point(aes(y = Total_Females, color="red"))+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "blue",(aes(y=Total_Males)))+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "red",(aes(y=Total_Females)))+
+  scale_colour_manual("", breaks = c("Total_Males", "Total_Females"), values = c("blue", "red")) +
+  theme_classic()+
+  scale_x_continuous(expand= c(0,0), limits= c(1967,2016))+
+  labs(x= "Year", y = "Number of Students Enrolled")
+
+enrollment_graph
+  
+
+```
+
+
+## Part 2 
+```{r}
+#read csv file
+phd <- read_csv("phd.csv") 
+ac_phd <- phd %>% 
+  filter(sex == "female") %>% 
+  filter(year != "1990") %>% 
+  filter(year != "1995") %>%
+  filter(year != "2005") %>% 
+  filter(year != "2015") %>%
+  filter(field != "all") %>%
+  filter(field != "lifesci") %>%
+  filter(field != "mathcomp") %>%
+  filter(field != "other") %>%
+  filter(field != "psychsoc") %>% 
+  select("field", "sex", "year", "number", "percent")
+
+phd_prop <- ac_phd %>% 
+  select("field", "year", "number") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Part 3 - Male and female salaries for starting postdoctoral and other employment positions (2015)
+Compare median salaries for male and female doctorate recipients in 2015. Answer these two questions:
+
+Does median salary differ significantly between male and female starting postdoc positions? Does median salary differ significantly between male and female PhD recipients in non-postdoc employment positions?
+
+Wilcoxon signed-rank - two sample paired
+
+```{r}
+doctoral <- read_csv("Doctoral_Salaries.csv")
+```
+
+##Data visualization - boxplots
+```{r, size = 3}
+doctoral_melt <- melt(doctoral[c('Field', 'Employment_Male', 'Employment_Female', 'Postdoc_Male', 'Postdoc_Female')],id.vars = 1) %>% 
+  mutate(
+    Sex = case_when(
+      variable == "Employment_Male" ~ "Male",
+      variable == "Employment_Female" ~ "Female",
+      variable == "Postdoc_Male" ~ "Male",
+      variable == "Postdoc_Female" ~ "Female"),
+    employment = case_when(
+      variable == "Employment_Male" ~ "Non-Postdoc",
+      variable == "Employment_Female" ~ "Non-Postdoc",
+      variable == "Postdoc_Male" ~ "Postdoc",
+      variable == "Postdoc_Female" ~ "Postdoc")
+      )
+
+employment_box <- ggplot(doctoral_melt, aes(x = employment, y = value, fill = Sex))+
+  geom_boxplot(aes(fill = Sex))+
+  labs(x = "\nType of Post-graduate Employment", y = "Median Salary ($) \n", scale = "free")+
+  annotate("text", x = 1, y = 130000, label = "*", size = 8) +
+  scale_y_continuous(expand = c(0,0), limits = c(40000,140000),breaks = seq(40000, 140000,by = 20000))+
+  scale_fill_manual(values=c("tan1", "steelblue3"))+
+  theme_classic()
+
+employment_box
+
+median(doctoral$Employment_Male)
+median(doctoral$Employment_Female)
+median(doctoral$Postdoc_Male)
+median(doctoral$Postdoc_Female)
+```
+
+
+##Wilcox rank test 
+```{r}
+employment_wilcox <- wilcox.test(doctoral$Employment_Male, doctoral$Employment_Female, paired = TRUE)
+employment_wilcox #V = 101, p-value = 0.002572
+
+postdoc_wilcox <- wilcox.test(doctoral$Postdoc_Male, doctoral$Postdoc_Female, paired = TRUE)
+postdoc_wilcox #V = 19.5, p-value = 0.8884
+```
+
+
+#Part 4 - Multivariate linear regression
+
+Exploring academic salaries for professors in U.S. colleges. Explore relationships between
+variables in the ‘Faculty salary data (2008 - 2009 survey)’ dataset. Develop a model describing faculty salary based on data for faculty sex, rank, years in current position, field, and number of years since doctoral degree was earned. You should make decisions regarding which variables should remain in your final model. Describe the results qualitatively and quantitatively (i.e., don’t just report the statistical results of the model – make sure you describe interesting findings in text). You can also discuss any
+concerns that you have with the model(s) you present, if any.
+
+Dependent variable (y): faculty salary
+Possible predictor variables: faculty sex, rank, years in current position, field, and number of years since doctoral degree was earned
+
+Steps:
+1) Explore data - find means of salary, make density plot of salary by diff predictor variables
+2) Make initial model 
+3) Test for colinearity
+4) Refine model
+3) Run diagnostic plots (to test Linearity, Independence, Homoscedasticity (residuals variance), Normality)
+5) AIC to compare different models
+
+##Make new dataframe 
+```{r}
+faculty_salary <- read_csv("Faculty_Salaries.csv")
+
+#Reorder columns
+faculty_salary <- faculty_salary[c("Salary", "Discipline", "Sex", "Faculty_Rank", "Years_Since_PhD", "Years_Faculty_Service")]
+  
+```
+
+##Explore data
+```{r}
+#Salary means by Sex
+sex_mean <- faculty_salary %>% 
+  group_by(Sex) %>% 
+  summarize(
+    mean = mean(Salary)
+  )
+
+#Salary means by Discipline
+discipline_mean <- faculty_salary %>% 
+  group_by(Discipline) %>% 
+  summarize(
+    mean = mean(Salary)
+  )
+
+#Relationship between salary and faculty years of service
+salary_service <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary)) +
+  geom_point(aes(color = Sex, pch = Discipline))+
+facet_wrap(~Discipline)
+
+salary_service
+
+#Relationship between salary and faculty rank, by sex and discipline
+salary_yrs <- ggplot(faculty_salary, aes(x = Faculty_Rank, y = Salary)) +
+  geom_point(aes(color = Sex, pch = Discipline), alpha = 0.5) +
+  facet_wrap(~Discipline)
+
+salary_yrs
+
+```
+
+##Change reference variables for the linear model
+```{r fct_relevel}
+#Make Faculty_Rank a factor
+faculty_salary$Faculty_Rank <- factor(faculty_salary$Faculty_Rank)
+
+#Make sure it's now a factor
+class(faculty_salary$Faculty_Rank) 
+
+#Check levels:
+levels(faculty_salary$Faculty_Rank)
+
+#Reassign reference level to "Prof":
+faculty_salary$Faculty_Rank <- fct_relevel(faculty_salary$Faculty_Rank, "Prof", "AssocProf", "AsstProf") #Relevels in this order with Regular as the reference level
+
+#Dobule check levels
+levels(faculty_salary$Faculty_Rank)
+
+```
+
+
+
+##Linear regression model - Saturated (all variables)
+```{r}
+salary_lm1 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Since_PhD + Years_Faculty_Service, data = faculty_salary)
+summary(salary_lm1)
+
+```
+
+Salary = 78862.8 + 14417.6(Discipline B) + 4783.5(Sex Male) - 12907.6(AsstProf) + 32158.4(Prof) + 535.1(Years_Since_PhD) - 489.5 (Years_Faculty_Service)
+
+Reference levels: Discipline A (0), Female (0), AssocProf (0)
+
+But... this says that as you increase years of service, your salary decreases -> Might indicate collinearity
+
+##Test for collinearity
+```{r}
+salary_simple <- faculty_salary %>% 
+  select(Salary, Years_Since_PhD, Years_Faculty_Service)
+
+cor(salary_simple) #High correlation bw Years_Since_PhD and Years_Faculty_Service
+
+#VIF
+vif(salary_lm1)
+
+```
+High correlation bw Years_Since_PhD and Years_Faculty_Service: 0.91
+
+VIF
+Years_Since_PhD: 7.51
+Years_Faculty_Service: 5.92
+
+So we should remove Years_Since_PhD or Years_Faculty_Service - which makes sense conceptually
+
+##Linear regression model - subsets
+```{r}
+#Model without Years_Since_PhD 
+salary_lm2 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Faculty_Service, data = faculty_salary)
+summary(salary_lm2)
+
+vif(salary_lm2)
+
+#Model without Years_Faculty_Service 
+salary_lm3 <- lm(Salary ~ Discipline + Sex + Faculty_Rank + Years_Since_PhD, data = faculty_salary)
+summary(salary_lm3)
+
+vif(salary_lm3)
+
+#Model without Years_Since_PhD and Years_Faculty_Service
+salary_lm4 <- lm(Salary ~ Discipline + Sex + Faculty_Rank, data = faculty_salary)
+summary(salary_lm4)
+
+vif(salary_lm4)
+
+```
+
+Model lm2 (Model without Years_Since_PhD):
+Salary = 82912.1 + 13473.4(Discipline B) +  4771.3(Sex Male) - 14560.4(AsstProf) + 34599.2(Prof) - 88.8 (Years_Faculty_Service)
+
+Model lm3 (Model without Years_Faculty_Service):
+Salary = 113916.9 + 13937.5(Discipline B) +  4349.4(Sex Male) - 32928.4(AssocProf) - 46032.6(AsstProf) + 61.0 (Years_Since_PhD)
+
+Model lm4:
+Salary = 81947 + 13709(Discipline B) +  4492(Sex Male) - 13723(AsstProf) + 33680(Prof) 
+
+##Interaction terms? 
+```{r}
+salary_lm5 <- lm(Salary ~ Sex + Faculty_Rank + Discipline + Years_Faculty_Service + Discipline*Years_Faculty_Service, data = faculty_salary)
+
+summary(salary_lm5)
+vif(salary_lm5)
+
+#Relationship between salary and Years_Faculty_Service, by discipline
+service_model <- lm(Salary ~ Years_Faculty_Service + Discipline, data = faculty_salary)
+
+service_graph1 <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary))+
+geom_point(aes(color = Discipline))+
+  facet_wrap(~Discipline)+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph1
+
+service_graph2 <- ggplot(faculty_salary, aes(x = Years_Faculty_Service, y = Salary))+
+geom_point()+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph2
+
+service_graph3 <- ggplot(faculty_salary, aes(x = Years_Since_PhD, y = Salary))+
+geom_point()+
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20")
+service_graph3
+```
+
+##Diagnostic plots
+```{r}
+plot(salary_lm2)
+plot(salary_lm3)
+plot(salary_lm4)
+plot(salary_lm5)
+```
+Residuals: homoscedastic??
+Normality: yes??
+
+##Akaike Information Criterion
+```{r}
+sat_aic <- AIC(salary_lm1)
+sat_aic #9093.8
+
+lm2_aic <- AIC(salary_lm2)
+lm2_aic #9096.8
+
+lm3_aic <- AIC(salary_lm3)
+lm3_aic #9097.2
+
+lm4_aic <- AIC(salary_lm4)
+lm4_aic #9095.5
+
+lm5_aic <- AIC(salary_lm5)
+lm5_aic #9093.6
+
+#lm4 < lm3 < lm2
+```
+None of the interactions significantly change the AIC value of the model. 
+
+SO: The best model is lm3
+
+                       Estimate Std. Error t value Pr(>|t|)    
+(Intercept)           113916.87    5364.37  21.236  < 2e-16 ***
+DisciplineB            13937.47    2346.53   5.940 6.32e-09 ***
+SexMale                 4349.37    3875.39   1.122    0.262    
+Faculty_RankAssocProf -32928.40    3544.40  -9.290  < 2e-16 ***
+Faculty_RankAsstProf  -46032.55    4240.12 -10.856  < 2e-16 ***
+Years_Since_PhD           61.01     127.01   0.480    0.631
+
+Model lm3 (Model without Years_Faculty_Service):
+Salary = 113916.9 + 13937.5(Discipline B) +  4349.4(Sex Male) - 32928.4(AssocProf) - 46032.6(AsstProf) + 61.0 (Years_Since_PhD)
+
+##Model data table
+```{r stargazer, results = 'asis'}
+
+lm_table <- stargazer(salary_lm3, type = "html")
+3
+```
+
+
+
+
