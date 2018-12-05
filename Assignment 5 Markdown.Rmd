@@ -96,7 +96,7 @@ enrollment_graph <- ggplot(enrollment, aes(x=Year))+
   geom_smooth(method = lm, se = TRUE, size = 0.5, color = "orange1",(aes(y=Total_Females/1000000)))+
   theme_classic()+
   scale_x_continuous(expand= c(0,0), limits= c(1966,2016))+
-  labs(x= "Year", y = "Number of Students Enrolled (In Millions)", color = "Gender")
+  labs(x= "Year", y = "Number of Students Enrolled (In Millions)", color = "Sex")
 
 enrollment_graph + scale_color_manual(values=c("orange1", "midnightblue"))
 
